@@ -15,6 +15,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   outerContainer: {
+    marginTop: 150,
     flex: 1, // Takes up the full available height
     justifyContent: 'center', // Centers the content vertically
     alignItems: 'center', // Centers the content horizontally
