@@ -52,7 +52,22 @@ export async function deleteFromDatabase(id: number) {
   }
 }
 
-export async function updateName(id: number, newName: string) {
-  const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
-  await db.runAsync('UPDATE testtable SET value = ? WHERE id = ?', [newName, id]);
+export async function updateName(id: number, name: string) {
+  console.log(`Entering updateName function with id: ${id}, newName: ${name}`);
+
+  try {
+    const db = await SQLite.openDatabaseAsync(DATABASE_NAME);
+    console.log('Database connection successful');
+
+    const sqlQuery = 'UPDATE testtable SET value = ? WHERE id = ?';
+    const params = [name, id];
+    console.log(`Executing SQL query: ${sqlQuery} with params: ${JSON.stringify(params)}`);
+
+    await db.runAsync(sqlQuery, params);
+    console.log('SQL query executed successfully');
+  } catch (error) {
+    console.error('Error updating name:', error);
+  } finally {
+    console.log('Exiting updateName function');
+  }
 }

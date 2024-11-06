@@ -3,30 +3,35 @@ import { insertIntoDatabase, FetchDataFromDatabase, deleteFromDatabase, updateNa
 import { useState, useEffect } from 'react';
 
 interface Row {
-  id: number;
+  id: number,
   value: string;
-  intValue: number;
+  name?: string;
+  isEditing?: boolean; // Add an optional property to track editing state
 }
+
 
 export function NameList() {
     const [name, setName] = useState('')
     const [data, setData] = useState<Row[]>([]);
-    //const [editingId, setEditingId] = useState(null); // State to track the ID of the name being edited
+    
+  
 
     const handleInsert = async () => {
       console.log('adding name')
         try {
             await insertIntoDatabase(name);
             setName(''); // Clear the input field after successful insertion
-            alert('Name inserted successfully!');
+           // alert('Name inserted successfully!');
 
             // Fetch data again after insertion
             const allRows = await FetchDataFromDatabase();
             setData(allRows);
+            console.log('Hela listan av namn', allRows)
           } catch (error) {
             console.error('Error inserting name:', error);
             alert('Error inserting name. Please try again.');
           }
+          
     }
 
     const handleDelete = async (id: number) => {
@@ -35,35 +40,21 @@ export function NameList() {
         await deleteFromDatabase(id);
         const allRows = await FetchDataFromDatabase();
         setData(allRows);
-        alert('Name deleted successfully!');
+        //alert('Name deleted successfully!');
       } catch (error) {
         console.error('Error deleting name:', error);
         alert('Error deleting name. Please try again.');
       }
     };
 
-    /*const handleUpdate = async (id: number, newName: string) => {
-      try {
-        await updateName(id, newName);
-  
-        // Update the local state
-        const updatedData = data.map((row) => {
-          if (row.id === id) {
-            return { ...row, value: newName };
-          }
-          return row;
-        });
-        setData(updatedData);
-  
-        alert('Name updated successfully!');
-      } catch (error) {
-        console.error('Error updating name:', error);
-        alert('Error updating name. Please try again.');
-      }
+    const handleNameUpdate = (id: number, name: string) => {
+      setData(
+        data.map((person) =>
+          person.id === id ? { ...person, name: name } : person
+        )
+      );
     };
-*/
-
-
+  
 
     useEffect(() => {
       const fetchData = async () => {
@@ -80,26 +71,31 @@ export function NameList() {
    
   return (
     <View style={styles.outerContainer}>
-      <TextInput
-        placeholder="Skriv namn"
-        value={name}
-        onChangeText={setName}
-      />
-      <Button title="Lägg till namn" onPress={handleInsert}/>
+    <TextInput
+      placeholder="Skriv namn"
+      value={name}
+      onChangeText={setName}
+    />
+    <Button title="Lägg till namn" onPress={handleInsert} />
+    
 
-      {data.length > 0 && (
-        <ScrollView>
-          <Text>Namnlista:</Text>
-          {data.slice().reverse().map((row) => (
-            <View key={row.id} style={styles.listItem}>
-              <Text>{`ID: ${row.id}, Namn: ${row.value}`}</Text>
-              <Button title="Ta bort" onPress={() => handleDelete(row.id)} />
+    {data.length > 0 && (
+      <ScrollView>
+        <Text>Namnlista:</Text>
+        {data.slice().reverse().map((row) => (
+          <View key={row.id} style={styles.listItem}>
+            <View>
+              <TextInput>{`ID: ${row.id}, Namn:${row.value}`}</TextInput>
             </View>
-          ))}
-        </ScrollView>
-      )}
-
-    </View>
+           <View>
+            <Button title="Uppdatera" onPress={() => handleNameUpdate(row.id, name)} />
+            <Button title="Ta bort" onPress={() => handleDelete(row.id)} />
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    )}
+  </View>
   );
 }
 
